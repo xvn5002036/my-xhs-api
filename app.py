@@ -1,3 +1,49 @@
+# ... (前面的程式碼維持不變，此處省略) ...
+
+@app.route('/api/parse', methods=['GET'])
+def parse_note():
+    # ... (序號與設備綁定驗證邏輯省略，與之前版本相同) ...
+    
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'}
+        response = requests.get(note_url, headers=headers)
+        if response.status_code != 200:
+            return jsonify({"status": "error", "message": f"無法訪問該網頁，狀態碼: {response.status_code}"})
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        script_tag = soup.find('script', string=lambda t: t and 'window.__INITIAL_STATE__' in t)
+        if not script_tag:
+            return jsonify({"status": "error", "message": "解析失敗：找不到筆記資料"})
+            
+        # --- 全新升級的強力解析邏輯 ---
+        # 從 "window.__INITIAL_STATE__=" 開始擷取，到結尾的 ";" 或 "</script>" 之前結束
+        # 這是最穩定的方法
+        full_script_text = script_tag.string
+        start_index = full_script_text.find('{')
+        end_index = full_script_text.rfind('}') + 1
+        
+        if start_index == -1 or end_index == -1:
+             return jsonify({"status": "error", "message": "解析失敗：無法定位 JSON 物件"})
+
+        json_data_str = full_script_text[start_index:end_index]
+        # --- 升級結束 ---
+
+        json_data = json.loads(json_data_str)
+        
+        note_data = list(json_data['note']['noteDetailMap'].values())[0]['note']
+        
+        # ... (後續的解析與回傳邏輯維持不變) ...
+        # ... (此處程式碼省略，與之前版本相同) ...
+        pass
+
+    except Exception as e:
+        print(traceback.format_exc())
+        return jsonify({"status": "error", "message": f"處理時發生錯誤: {e}"})
+
+# ... (其他函數維持不變) ...
+
+# 以下為完整的程式碼，請直接複製使用
 import os
 import secrets
 import string
@@ -114,16 +160,14 @@ def parse_note():
         if not script_tag:
             return jsonify({"status": "error", "message": "解析失敗：找不到筆記資料"})
             
-        # --- 這是我們升級的核心邏輯 ---
-        json_data_str = script_tag.string.split('=', 1)[1].strip()
-        # 強力清理：移除結尾所有可能的非 JSON 字元
-        if json_data_str.endswith(';'):
-            json_data_str = json_data_str[:-1]
-        if json_data_str.endswith('</script>'):
-            json_data_str = json_data_str[:-9]
-        # 再次清理，確保萬無一失
-        json_data_str = json_data_str.strip()
-        # --- 升級結束 ---
+        full_script_text = script_tag.string
+        start_index = full_script_text.find('{')
+        end_index = full_script_text.rfind('}') + 1
+        
+        if start_index == -1 or end_index == -1:
+             return jsonify({"status": "error", "message": "解析失敗：無法定位 JSON 物件"})
+
+        json_data_str = full_script_text[start_index:end_index]
 
         json_data = json.loads(json_data_str)
         
@@ -160,4 +204,4 @@ def parse_note():
 
 @app.route('/', methods=['GET'])
 def index():
-    return "API v11 with Robust Parser is running."
+    return "API v12 with Stable Device ID and Parser is running."
