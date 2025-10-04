@@ -12,7 +12,7 @@ app = Flask(__name__)
 # --- 設定區 ---
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
-REPO_NAME = "xvn002036/my-xhs-api" # 請再次確認這是您自己的 "使用者名稱/倉庫名稱"
+REPO_NAME = "xvn5002036/my-xhs-api" # 請再次確認這是您自己的 "使用者名稱/倉庫名稱"
 BINDINGS_FILE_PATH = "bindings.txt"
 # --- 設定結束 ---
 
