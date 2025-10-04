@@ -82,7 +82,7 @@ app = Flask(__name__)
 
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
-REPO_NAME = "xvn002036/my-xhs-api"
+REPO_NAME = "xvn5002036/my-xhs-api"
 BINDINGS_FILE_PATH = "bindings.txt"
 KEYS_URL = f"https://raw.githubusercontent.com/{REPO_NAME}/main/{BINDINGS_FILE_PATH}"
 
