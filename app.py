@@ -7,7 +7,7 @@ app = Flask(__name__)
 # --- 設定區 ---
 # 請將這裡的連結換成您自己 GitHub 倉庫中 keys.txt 的 "Raw" 連結
 # 如何取得 Raw 連結: 點開 keys.txt 檔案 -> 點擊 "Raw" 按鈕 -> 複製瀏覽器網址列的連結
-KEYS_URL = "https://raw.githubusercontent.com/xvn5002036/my-xhs-api/main/keys.txt"
+KEYS_URL = "https://raw.githubusercontent.com/xvn5002036/my-xhs-api/refs/heads/main/app.py"
 # --- 設定結束 ---
 
 def get_valid_keys():
