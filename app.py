@@ -8,31 +8,6 @@ from github import Github
 import json
 import traceback
 
-# --- 這是最關鍵的一步 ---
-# 必須先建立 app 物件，後續的 @app.route 才能使用它
-app = Flask(__name__)
-# --- 修正結束 ---
-
-# --- 設定區 ---
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
-GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
-REPO_NAME = "xvn5002036/my-xhs-api"
-BINDINGS_FILE_PATH = "bindings.txt"
-# ... (後續所有程式碼維持不變) ...
-
-# (請注意：為了確保萬無一失，請將我提供的包含所有功能的完整程式碼，完整地貼上)
-
-# 以下為完整的程式碼，請直接複製使用
-import os
-import secrets
-import string
-from flask import Flask, request, jsonify
-import requests
-from bs4 import BeautifulSoup
-from github import Github
-import json
-import traceback
-
 app = Flask(__name__)
 
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
@@ -154,22 +129,29 @@ def parse_note():
         
         note_type = note_data.get('type')
         title = note_data.get('title')
-        media_urls = []
-
-        if note_type == 'video':
+        
+        if note_type == 'image' and 'video' in note_data and note_data['video']:
+            notetype_for_shortcut = "live_photo"
+            image_url = note_data['imageList'][0]['urlDefault']
+            video_url = note_data['video']['stream']['h264'][0]['url']
+            
+            return jsonify({
+                "status": "success",
+                "title": title,
+                "notetype": notetype_for_shortcut,
+                "live_photo_data": {
+                    "image_url": image_url,
+                    "video_url": video_url
+                }
+            })
+        
+        elif note_type == 'video':
             notetype_for_shortcut = "video"
-            video_info = note_data['video']['stream']['h264'][0]
-            media_urls.append(video_info['url'])
+            media_urls = [note_data['video']['stream']['h264'][0]['url']]
         else:
             notetype_for_shortcut = "image"
-            for image_info in note_data.get('imageList', []):
-                highest_quality_url = image_info['urlDefault']
-                for res in image_info['infoList']:
-                    if res['imageScene'] == 'CRD_WM_WEBP':
-                        highest_quality_url = res['url']
-                        break
-                media_urls.append(highest_quality_url)
-        
+            media_urls = [img['urlDefault'] for img in note_data.get('imageList', [])]
+
         return jsonify({
             "status": "success",
             "title": title,
@@ -183,4 +165,4 @@ def parse_note():
 
 @app.route('/', methods=['GET'])
 def index():
-    return "API v13 with Final Fix is running."
+    return "API v14 with Live Photo Support is running."
